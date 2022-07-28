@@ -1,8 +1,9 @@
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const axios = require('axios').default;
-const envpaths = require("env-paths")
+const envPaths = require("env-paths")
 const fs = require("fs")
+const { manage } = require("./manage")
 
 async function setup() {
     console.log(chalk.bold.greenBright("Hello and welcome to the Oxide hosting CLI tool!"))
@@ -36,7 +37,8 @@ async function setup() {
                 }, 5000)
             } else {
                 console.log(chalk.bold.greenBright(`Authentication successful! Welcome, ${response.data.preferences.fname}.`))
-                fs.writeFileSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json", answers) 
+                fs.writeFileSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json", JSON.stringify(answers)) 
+                manage()
             }
         })
     })
