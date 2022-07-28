@@ -9,7 +9,7 @@ console.clear()
 
 axios.defaults.baseURL = 'https://virtualizor.oxide.host:4083';
 
-// ok shutup this is scuffed and i could have 10x better. cry.
+// ok shutup this is scuffed and i could have made it 10x better. cry.
 if (!fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config)) {
     fs.mkdirSync(envPaths("oxide-cli", { suffix: "" }).config, {
       recursive: true,
@@ -17,6 +17,6 @@ if (!fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config)) {
     
     setup()
 
-} else if (fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config + "")) {
+} else if (!fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json")) {
     setup()
 }
