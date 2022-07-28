@@ -17,7 +17,8 @@ async function manage() {
         vpsListWithIds[vpsList[vps].hostname] = vpsList[vps].vpsid;
     }
     spinner.stop();
-    console.log(chalk.bold.greenBright(`Welcome back, ${user.preferences.fname}!`))
+    console.clear()
+    console.log(chalk.bold.greenBright(`Welcome, ${user.preferences.fname}!`))
     await inquirer.prompt([
         {
             type: "list",

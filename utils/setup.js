@@ -28,7 +28,7 @@ async function setup() {
                 apikey: answers.key,
                 apipass: answers.pass
             }
-        }).then(function (response) {
+        }).then(async function (response) {
             if(response.data.act == 'login') {
                 console.log(chalk.bold.red("Authentication failed! Restarting setup in 5 seconds..."))
                 setTimeout(() => {
@@ -37,8 +37,13 @@ async function setup() {
                 }, 5000)
             } else {
                 console.log(chalk.bold.greenBright(`Authentication successful! Welcome, ${response.data.preferences.fname}.`))
-                fs.writeFileSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json", JSON.stringify(answers)) 
-                manage()
+                await fs.writeFileSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json", JSON.stringify(answers)) 
+                axios.defaults.params = {
+                    api: "json",
+                    apikey: answers.key,
+                    apipass: answers.pass
+                  }
+                await manage()
             }
         })
     })
