@@ -27,7 +27,7 @@ async function manage() {
             choices: vpsNames
         }
     ]).then((answer) => {
-        manageVps(vpsListWithIds[answer])
+        manageVps(vpsListWithIds[answer.service])
     });
 }
 

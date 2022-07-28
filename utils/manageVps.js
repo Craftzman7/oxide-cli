@@ -4,18 +4,45 @@ const ora = require("ora");
 const chalk = require("chalk");
 
 async function manageVps(id) {
-    inquirer.prompt([
+    const spinner = ora("Loading...").start()
+    choices = []
+    const vps = {}
+    offlineChoices = [
+        "Start",
+        "Go back"
+    ]
+    onlineChoices = [
+        "Stop",
+        "Restart",
+        "Power off",
+        "Go back"
+    ]
+    await axios.get("/index.php", {
+        params: {
+            svs: id,
+            act: "vpsmanage"
+        }
+    }).then((response) => {
+        // scuffed
+        spinner.stop()
+        if(response.data.info.status == 1) {
+            vps.info = response.data.info;
+            choices.push(...onlineChoices)
+        } else {
+            vps.info = response.data.info;
+            choices.push(...offlineChoices)
+        }
+    })
+    console.clear()
+    console.log(chalk.bold.green(`Managing: ${vps.info.hostname}`))
+    process.stdout.write(chalk.bold.green("VPS status: "))
+    process.stdout.write(vps.info.status == 1 ? chalk.bold.green("Online\n") : chalk.bold.red("Offline\n"))
+    await inquirer.prompt([
         {
             type: "list",
             name: "action",
             message: "What action would you like to perform?",
-            choices: [
-                "Start",
-                "Stop",
-                "Restart",
-                "Power off",
-                "Go back"
-            ]
+            choices: choices
         }
     ]).then( async (answer) => {
         switch(answer.action) {
@@ -49,7 +76,6 @@ async function startVps(id) {
         }
     }).then((response) => {
         spinner.stop();
-        console.log(response.data)
         if(response.data.done) {
             console.log(chalk.bold.green("The VPS was started successfully."))
         } else {
