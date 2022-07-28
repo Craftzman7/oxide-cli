@@ -9,12 +9,14 @@ async function manageVps(id) {
     const vps = {}
     offlineChoices = [
         "Start",
-        "Go back"
+        "Reinstall OS",
+        "Go back",
     ]
     onlineChoices = [
         "Stop",
         "Restart",
         "Power off",
+        "Reinstall OS",
         "Go back"
     ]
     await axios.get("/index.php", {
@@ -47,7 +49,7 @@ async function manageVps(id) {
     ]).then( async (answer) => {
         switch(answer.action) {
             case "Start":
-                await startVps(id);
+                await startVps(id)
                 break;
             case "Stop":
                 await stopVps(id)
@@ -57,6 +59,9 @@ async function manageVps(id) {
                 break;
             case "Power off":
                 await shutdownVps(id)
+                break;
+            case "Reinstall OS":
+                await reinstallVps(id)
                 break;
             case "Go back":
                 console.clear()
@@ -151,6 +156,75 @@ async function shutdownVps(id) {
             console.clear()
             manageVps(id)
         }, 5000)
+    })
+}
+
+async function reinstallVps(id) {
+    const spinner = ora("Loading...").start()
+    osList = []
+    const osListWithIds = {};
+    choices = {}
+    await axios("/", {
+        method: 'post',
+        params: {
+            act: "ostemplate",
+            svs: id,
+        },
+        headers: { 
+            'Content-Type': 'text/plain'
+        },
+        data: 'reinsos=0&newos=0&newpass=Test123&conf=Test123'
+    }).then( async (response) => {
+        for (const os in response.data.oslist.kvm) {
+            const versions = response.data.oslist.kvm[os];
+            for  (const number in versions) {
+                osList.push(versions[number].name);
+                osListWithIds[versions[number].name] = number;
+            }
+        }
+        spinner.stop()
+        await inquirer.prompt([
+            {
+                type: "list",
+                name: "os",
+                message: "What OS would you like to install?",
+                choices: osList
+            }
+        ]).then( async (answer) => {
+            spinner.start()
+            choices.os = osListWithIds[answer.os]
+            spinner.stop()
+            console.log(choices.os)
+            await inquirer.prompt([
+                {
+                    type: "password",
+                    name: "password",
+                    message: "Enter the password you would like to use."
+                }
+            ]).then( async (answer) => {
+                spinner.start()
+                choices.password = answer.password;
+                await axios("/", {
+                    method: 'post',
+                    params: {
+                        act: "ostemplate",
+                        svs: id,
+                    },
+                    data: `reinsos=1&newos=${choices.os}&newpass=${choices.password}&conf=${choices.password}`
+                }).then((response) => {
+                    spinner.stop()
+                    if(response.data.done) {
+                        console.log(chalk.bold.green("The VPS was reinstalled successfully."))
+                    } else {
+                        console.log(chalk.bold.red("There was a problem reinstalling your VPS."))
+                    }
+                    setTimeout(() => {
+                        console.clear()
+                        manageVps(id)
+                    }, 5000)
+                })
+            })
+        })
     })
 }
 
