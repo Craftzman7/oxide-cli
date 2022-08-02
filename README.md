@@ -1,2 +1,2 @@
 # oxide-cli
-A CLI interface for Oxide Hosting.
+A CLI for Oxide Hosting.
