@@ -7,7 +7,7 @@ const axios = require("axios").default;
 // TODO: Wrap this all in a main function
 console.clear()
 
-axios.defaults.baseURL = 'https://virtualizor.oxide.host:4083';
+axios.defaults.baseURL = 'https://vps.oxide.host';
 
 // ok shutup this is scuffed and i could have made it 10x better. cry.
 if (!fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config) || !fs.existsSync(envPaths("oxide-cli", { suffix: "" }).config + "/config.json")) {
